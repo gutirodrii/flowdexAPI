@@ -31,6 +31,36 @@ La aplicación construye automáticamente la conexión asyncpg por socket:
 gcloud builds submit --tag europe-southwest1-docker.pkg.dev/PROJECT_ID/REPOSITORY/flowdex-api:latest
 ```
 
+## Cloud Build desde GitHub
+
+El repo incluye [cloudbuild.yaml](/Users/davidgutierrez/Documents/GitHub/flowdexAPI/cloudbuild.yaml) para usar un trigger de Cloud Build conectado a GitHub.
+
+Configura el trigger para que use ese archivo y define estas sustituciones:
+
+- `_REGION=europe-southwest1`
+- `_AR_REPOSITORY=flowdex`
+- `_SERVICE_NAME=flowdex-api`
+- `_INSTANCE_CONNECTION_NAME=flowdex-490012:europe-southwest1:flowdex`
+- `_DB_NAME=postgres`
+- `_DB_USER=postgres`
+- `_RUNTIME_SERVICE_ACCOUNT=flowdex-api@flowdex-490012.iam.gserviceaccount.com`
+- `_SECRET_KEY_SECRET=flowdex-secret`
+- `_DB_PASSWORD_SECRET=flowdex-db-password`
+
+El pipeline hace:
+
+- `docker build` usando el `Dockerfile` del repo
+- `docker push` a Artifact Registry
+- `gcloud run deploy` al servicio Cloud Run
+
+Permisos mínimos para la service account de Cloud Build:
+
+- `Cloud Run Admin`
+- `Service Account User`
+- `Artifact Registry Writer`
+- `Secret Manager Secret Accessor`
+- `Cloud SQL Client`
+
 ## Deploy
 
 ```bash
@@ -49,3 +79,4 @@ gcloud run deploy flowdex-api \
 - El contenedor ya no ejecuta `create_all` ni `alembic stamp` al arrancar.
 - Cloud Run usará `PORT`, y local seguirá usando `8000`.
 - Hay un endpoint de salud en `/healthz`.
+- El despliegue desde Cloud Build usa imagen inmutable por commit SHA.
