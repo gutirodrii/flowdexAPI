@@ -4,11 +4,11 @@ options:
 substitutions:
   _REGION: europe-southwest1
   _AR_REPOSITORY: flowdex
-  _SERVICE_NAME: flowdex-api
+  _SERVICE_NAME: flowdexapi
   _INSTANCE_CONNECTION_NAME: flowdex-490012:europe-southwest1:flowdex
   _DB_NAME: postgres
   _DB_USER: postgres
-  _RUNTIME_SERVICE_ACCOUNT: flowdex-api@flowdex-490012.iam.gserviceaccount.com
+  _RUNTIME_SERVICE_ACCOUNT: flowdexapi@flowdex-490012.iam.gserviceaccount.com
   _SECRET_KEY_SECRET: flowdex-secret
   _DB_PASSWORD_SECRET: flowdex-db-password
 
