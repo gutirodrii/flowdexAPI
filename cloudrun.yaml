@@ -24,4 +24,4 @@ spec:
               value: "postgres"
             - name: DB_PASSWORD
               value: "REPLACE_WITH_DB_PASSWORD"
-      serviceAccountName: flowdex-api@PROJECT_ID.iam.gserviceaccount.com
+      serviceAccountName: flowdexapi@PROJECT_ID.iam.gserviceaccount.com

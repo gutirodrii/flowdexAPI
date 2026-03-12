@@ -2,7 +2,7 @@ options:
   logging: CLOUD_LOGGING_ONLY
 
 substitutions:
-  _REGION: europe-southwest1
+  _REGION: europe-west1
   _AR_REPOSITORY: flowdex
   _SERVICE_NAME: flowdexapi
   _INSTANCE_CONNECTION_NAME: flowdex-490012:europe-southwest1:flowdex
