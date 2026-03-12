@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Integer, String, ForeignKey, text, CheckConstraint
+from sqlalchemy import Integer, String, ForeignKey, text, CheckConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from app.models.base import Base
@@ -13,7 +13,10 @@ class Timesheet(Base):
     )
 
     timesheet_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
     )
     usuario_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -31,8 +34,8 @@ class Timesheet(Base):
         nullable=True,
     )
     status: Mapped[str] = mapped_column(String, nullable=False, server_default="open")
-    clock_in: Mapped[datetime] = mapped_column(nullable=False, server_default=text("now()"))
+    clock_in: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
     clock_out: Mapped[datetime | None] = mapped_column(nullable=True)
     minutes_worked: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     notas: Mapped[str | None] = mapped_column(String, nullable=True)
-    created_at: Mapped[datetime | None] = mapped_column(server_default=text("now()"))
+    created_at: Mapped[datetime | None] = mapped_column(server_default=func.now())

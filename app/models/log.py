@@ -1,16 +1,19 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import BigInteger, String, ForeignKey, text
+from sqlalchemy import BigInteger, Integer, String, ForeignKey, text, JSON, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from app.models.base import Base
+
+json_type = JSON().with_variant(JSONB, "postgresql")
+log_id_type = BigInteger().with_variant(Integer, "sqlite")
 
 
 class Log(Base):
     __tablename__ = "logs"
 
-    log_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
-    created_at: Mapped[datetime | None] = mapped_column(server_default=text("now()"))
+    log_id: Mapped[int] = mapped_column(log_id_type, primary_key=True, autoincrement=True)
+    created_at: Mapped[datetime | None] = mapped_column(server_default=func.now())
     usuario_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("usuarios.usuario_id", ondelete="SET NULL"),
@@ -21,5 +24,5 @@ class Log(Base):
     action: Mapped[str] = mapped_column(String, nullable=False)
     level: Mapped[str] = mapped_column(String, nullable=False, server_default="info")
     message: Mapped[str | None] = mapped_column(String, nullable=True)
-    old_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    new_data: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    old_data: Mapped[dict | None] = mapped_column(json_type, nullable=True)
+    new_data: Mapped[dict | None] = mapped_column(json_type, nullable=True)

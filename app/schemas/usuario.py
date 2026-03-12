@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr
 class UsuarioBase(BaseModel):
     nombre: str
     apellidos: str
-    email: str
+    email: Optional[EmailStr] = None
     rol: str = "user"
     activo: bool = True
 
@@ -19,7 +19,7 @@ class UsuarioCreate(UsuarioBase):
 class UsuarioUpdate(BaseModel):
     nombre: Optional[str] = None
     apellidos: Optional[str] = None
-    email: Optional[str] = None
+    email: Optional[EmailStr] = None
     rol: Optional[str] = None
     activo: Optional[bool] = None
     password: Optional[str] = None

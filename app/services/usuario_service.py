@@ -12,18 +12,12 @@ async def create_usuario(
     db: AsyncSession, data: UsuarioCreate, actor_id: Optional[uuid.UUID] = None
 ) -> Usuario:
     if data.email:
-        existing_email = await usuario_repository.get_by_email(db, data.email)
+        existing_email = await usuario_repository.get_by_email(db, str(data.email))
         if existing_email:
             raise ValueError("Email ya registrado")
 
     create_data = data.model_dump(exclude={"password"})
     create_data["clave_hash"] = get_password_hash(data.password)
-
-    from app.schemas.usuario import UsuarioBase
-    from pydantic import BaseModel
-
-    class _InternalCreate(BaseModel):
-        model_config = {"arbitrary_types_allowed": True}
 
     usuario = Usuario(**create_data)
     db.add(usuario)
@@ -47,7 +41,16 @@ async def update_usuario(
     if not usuario:
         return None
 
-    old_data = {"email": usuario.email, "rol": usuario.rol, "activo": usuario.activo}
+    if data.email is not None and data.email != usuario.email:
+        existing_email = await usuario_repository.get_by_email(db, str(data.email))
+        if existing_email and existing_email.usuario_id != usuario_id:
+            raise ValueError("Email ya registrado")
+
+    old_data = {
+        "email": usuario.email,
+        "rol": usuario.rol,
+        "activo": usuario.activo,
+    }
     update_fields = data.model_dump(exclude_unset=True, exclude={"password"})
 
     if data.password:
@@ -62,7 +65,11 @@ async def update_usuario(
     await write_log(
         db, "usuarios", usuario.usuario_id, "update", actor_id,
         old_data=old_data,
-        new_data={"email": usuario.email, "rol": usuario.rol, "activo": usuario.activo}
+        new_data={
+            "email": usuario.email,
+            "rol": usuario.rol,
+            "activo": usuario.activo,
+        }
     )
     return usuario
 

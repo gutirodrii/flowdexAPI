@@ -1,0 +1,27 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: flowdex-api
+spec:
+  template:
+    spec:
+      containerConcurrency: 80
+      timeoutSeconds: 300
+      containers:
+        - image: REGION-docker.pkg.dev/PROJECT_ID/REPOSITORY/flowdex-api:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SECRET_KEY
+              value: "REPLACE_WITH_SECRET"
+            - name: ACCESS_TOKEN_EXPIRE_MINUTES
+              value: "60"
+            - name: INSTANCE_CONNECTION_NAME
+              value: "flowdex-490012:europe-southwest1:flowdex"
+            - name: DB_NAME
+              value: "postgres"
+            - name: DB_USER
+              value: "postgres"
+            - name: DB_PASSWORD
+              value: "REPLACE_WITH_DB_PASSWORD"
+      serviceAccountName: flowdex-api@PROJECT_ID.iam.gserviceaccount.com

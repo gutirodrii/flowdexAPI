@@ -58,7 +58,12 @@ async def update_usuario(
     db: AsyncSession = Depends(get_db),
     current_user: Usuario = Depends(require_admin),
 ):
-    usuario = await usuario_service.update_usuario(db, usuario_id, data, actor_id=current_user.usuario_id)
+    try:
+        usuario = await usuario_service.update_usuario(
+            db, usuario_id, data, actor_id=current_user.usuario_id
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return usuario

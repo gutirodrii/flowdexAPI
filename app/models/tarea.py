@@ -1,6 +1,6 @@
 import uuid
 from datetime import date, datetime
-from sqlalchemy import Date, String, ForeignKey, text
+from sqlalchemy import Date, String, ForeignKey, text, func
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from app.models.base import Base
@@ -10,7 +10,10 @@ class Tarea(Base):
     __tablename__ = "tareas"
 
     tarea_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()"),
     )
     proyecto_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
@@ -32,5 +35,5 @@ class Tarea(Base):
         nullable=True,
     )
     fecha_vencimiento: Mapped[date | None] = mapped_column(Date, nullable=True)
-    created_at: Mapped[datetime | None] = mapped_column(server_default=text("now()"))
-    updated_at: Mapped[datetime | None] = mapped_column(server_default=text("now()"))
+    created_at: Mapped[datetime | None] = mapped_column(server_default=func.now())
+    updated_at: Mapped[datetime | None] = mapped_column(server_default=func.now())

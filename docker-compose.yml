@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: flowdex
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-flowdex_secret}
+      POSTGRES_DB: flowdex
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowdex -d flowdex"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: .
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://flowdex:${DB_PASSWORD:-flowdex_secret}@db:5432/flowdex
+      SECRET_KEY: ${SECRET_KEY:-change-me-to-a-random-secret-key-at-least-32-chars}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
