@@ -4,12 +4,15 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
 from app.core.config import get_settings
+from scripts.create_admin import ensure_admin
 
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    if settings.SEED_ADMIN_ON_STARTUP:
+        await ensure_admin()
     yield
 
 
@@ -21,7 +24,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://erp.flowdex.es"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

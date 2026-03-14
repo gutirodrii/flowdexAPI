@@ -11,6 +11,7 @@ substitutions:
   _RUNTIME_SERVICE_ACCOUNT: flowdexapi@flowdex-490012.iam.gserviceaccount.com
   _SECRET_KEY_SECRET: flowdex-secret
   _DB_PASSWORD_SECRET: flowdex-db-password
+  _ADMIN_SEED_PASSWORD_SECRET: flowdex-admin-seed-password
 
 images:
   - "${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPOSITORY}/${_SERVICE_NAME}:$COMMIT_SHA"
@@ -48,6 +49,6 @@ steps:
       - "--add-cloudsql-instances"
       - "${_INSTANCE_CONNECTION_NAME}"
       - "--set-env-vars"
-      - "ACCESS_TOKEN_EXPIRE_MINUTES=60,INSTANCE_CONNECTION_NAME=${_INSTANCE_CONNECTION_NAME},DB_NAME=${_DB_NAME},DB_USER=${_DB_USER}"
+      - "ACCESS_TOKEN_EXPIRE_MINUTES=60,INSTANCE_CONNECTION_NAME=${_INSTANCE_CONNECTION_NAME},DB_NAME=${_DB_NAME},DB_USER=${_DB_USER},SEED_ADMIN_ON_STARTUP=true,ADMIN_SEED_EMAIL=admin@flowdex.es"
       - "--set-secrets"
-      - "SECRET_KEY=${_SECRET_KEY_SECRET}:latest,DB_PASSWORD=${_DB_PASSWORD_SECRET}:latest"
+      - "SECRET_KEY=${_SECRET_KEY_SECRET}:latest,DB_PASSWORD=${_DB_PASSWORD_SECRET}:latest,ADMIN_SEED_PASSWORD=${_ADMIN_SEED_PASSWORD_SECRET}:latest"

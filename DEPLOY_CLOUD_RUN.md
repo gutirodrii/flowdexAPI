@@ -8,6 +8,9 @@ Usa estas variables de entorno en Cloud Run:
 
 - `SECRET_KEY`
 - `ACCESS_TOKEN_EXPIRE_MINUTES=60`
+- `SEED_ADMIN_ON_STARTUP=true`
+- `ADMIN_SEED_EMAIL=admin@flowdex.es`
+- `ADMIN_SEED_PASSWORD` (desde Secret Manager)
 - `INSTANCE_CONNECTION_NAME=flowdex-490012:europe-southwest1:flowdex`
 - `DB_NAME=postgres`
 - `DB_USER=postgres`
@@ -46,6 +49,7 @@ Configura el trigger para que use ese archivo y define estas sustituciones:
 - `_RUNTIME_SERVICE_ACCOUNT=flowdex-api@flowdex-490012.iam.gserviceaccount.com`
 - `_SECRET_KEY_SECRET=flowdex-secret`
 - `_DB_PASSWORD_SECRET=flowdex-db-password`
+- `_ADMIN_SEED_PASSWORD_SECRET=flowdex-admin-seed-password`
 
 El pipeline hace:
 
@@ -70,13 +74,14 @@ gcloud run deploy flowdex-api \
   --platform managed \
   --allow-unauthenticated \
   --add-cloudsql-instances flowdex-490012:europe-southwest1:flowdex \
-  --set-env-vars ACCESS_TOKEN_EXPIRE_MINUTES=60,INSTANCE_CONNECTION_NAME=flowdex-490012:europe-southwest1:flowdex,DB_NAME=postgres,DB_USER=postgres \
-  --set-secrets SECRET_KEY=flowdex-secret:latest,DB_PASSWORD=flowdex-db-password:latest
+  --set-env-vars ACCESS_TOKEN_EXPIRE_MINUTES=60,SEED_ADMIN_ON_STARTUP=true,ADMIN_SEED_EMAIL=admin@flowdex.es,INSTANCE_CONNECTION_NAME=flowdex-490012:europe-southwest1:flowdex,DB_NAME=postgres,DB_USER=postgres \
+  --set-secrets SECRET_KEY=flowdex-secret:latest,DB_PASSWORD=flowdex-db-password:latest,ADMIN_SEED_PASSWORD=flowdex-admin-seed-password:latest
 ```
 
 ## Notas
 
 - El contenedor ya no ejecuta `create_all` ni `alembic stamp` al arrancar.
+- El seed de admin es idempotente: si `admin@flowdex.es` ya existe, no crea duplicados.
 - Cloud Run usará `PORT`, y local seguirá usando `8000`.
 - Hay un endpoint de salud en `/healthz`.
 - El despliegue desde Cloud Build usa imagen inmutable por commit SHA.

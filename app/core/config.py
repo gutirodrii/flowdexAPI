@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     API_V1_STR: str = "/api/v1"
+    SEED_ADMIN_ON_STARTUP: bool = False
+    ADMIN_SEED_NOMBRE: str = "Admin"
+    ADMIN_SEED_APELLIDOS: str = "Flowdex"
+    ADMIN_SEED_EMAIL: str = "admin@flowdex.es"
+    ADMIN_SEED_PASSWORD: Optional[str] = None
 
     class Config:
         env_file = ".env"

@@ -1,42 +1,38 @@
-"""Script para crear un usuario admin en la base de datos."""
+"""Seed idempotente para asegurar un usuario admin en la base de datos."""
 import asyncio
 import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import bcrypt
 from sqlalchemy import select
 from app.core.database import AsyncSessionLocal
+from app.core.config import get_settings
+from app.core.security import get_password_hash
 from app.models.usuario import Usuario
 
-
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+settings = get_settings()
 
 
-ADMIN_NOMBRE = "Admin"
-ADMIN_APELLIDOS = "Flowdex"
-ADMIN_EMAIL = "admin@flowdex.com"
-ADMIN_PASSWORD = "Admin1234!"
+async def ensure_admin() -> bool:
+    if not settings.ADMIN_SEED_PASSWORD:
+        raise ValueError("ADMIN_SEED_PASSWORD es obligatorio para crear el admin")
 
-
-async def create_admin():
     async with AsyncSessionLocal() as session:
         result = await session.execute(
-            select(Usuario).where(Usuario.email == ADMIN_EMAIL)
+            select(Usuario).where(Usuario.email == settings.ADMIN_SEED_EMAIL)
         )
         existing = result.scalar_one_or_none()
 
         if existing:
-            print(f"Ya existe un usuario con email '{ADMIN_EMAIL}'.")
-            return
+            print(f"Ya existe un usuario admin con email '{settings.ADMIN_SEED_EMAIL}'.")
+            return False
 
         admin = Usuario(
-            nombre=ADMIN_NOMBRE,
-            apellidos=ADMIN_APELLIDOS,
-            email=ADMIN_EMAIL,
-            clave_hash=hash_password(ADMIN_PASSWORD),
+            nombre=settings.ADMIN_SEED_NOMBRE,
+            apellidos=settings.ADMIN_SEED_APELLIDOS,
+            email=settings.ADMIN_SEED_EMAIL,
+            clave_hash=get_password_hash(settings.ADMIN_SEED_PASSWORD),
             rol="admin",
             activo=True,
         )
@@ -48,7 +44,8 @@ async def create_admin():
         print(f"  ID:    {admin.usuario_id}")
         print(f"  Email: {admin.email}")
         print(f"  Rol:   {admin.rol}")
+        return True
 
 
 if __name__ == "__main__":
-    asyncio.run(create_admin())
+    asyncio.run(ensure_admin())
